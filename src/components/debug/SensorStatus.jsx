@@ -5,8 +5,7 @@ import ThermometerIcon from '../../components/icons/ThermometerIcon';
 import HumidityIcon from '../../components/icons/HumidityIcon';
 import LightIntensityIcon from '../../components/icons/LightIntensityIcon';
 import RainIcon from '../../components/icons/RainIcon';
-import CurtainIcon from '../../components/icons/CurtainIcon';
-import WindowIcon from '../../components/icons/WindowIcon';
+// Removed unused imports CurtainIcon and WindowIcon
 import DummyCurtainIcon from '../../components/icons/DummyCurtainIcon';
 import DummyWindowIcon from '../../components/icons/DummyWindowIcon';
 import '../../SensorStatus.css';
@@ -123,7 +122,6 @@ const SensorStatus = () => {
         <div className="sensor-header">
           <ThermometerIcon className="sensor-icon" />
           <div>
-            <p className="sensor-label">Device temperature</p>
             <p className={'sensor-value ' + (prevDeviceTempRef.current !== deviceTemp ? 'animate-change' : '')}>
               {deviceTemp !== null ? deviceTemp + '°C' : '--'}
             </p>
