@@ -1,28 +1,19 @@
-/* General styles */
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f9fafb;
-  margin: 0;
-  padding: 20px;
-  color: #333;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  box-sizing: border-box;
-}
-
-/* Sensor dashboard container */
 .sensor-dashboard {
   display: grid;
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   max-width: 900px;
   width: 100%;
   box-sizing: border-box;
+  background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background-image: url('/logo192.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 120px 120px;
 }
 
-/* Sensor card */
 .sensor-card {
   background: #fff;
   border-radius: 16px;
@@ -36,14 +27,12 @@ body {
   cursor: default;
 }
 
-/* Hover effect */
 .sensor-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 30px rgba(149, 157, 165, 0.4);
   cursor: pointer;
 }
 
-/* Sensor header */
 .sensor-header {
   display: flex;
   align-items: center;
@@ -51,7 +40,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Sensor icon */
 .sensor-icon {
   width: 40px;
   height: 40px;
@@ -60,12 +48,10 @@ body {
   transition: transform 0.3s ease;
 }
 
-/* Animate icon on value change */
 .animate-change {
   animation: pulse 1s ease;
 }
 
-/* Sensor label */
 .sensor-label {
   font-size: 0.9rem;
   color: #999;
@@ -73,7 +59,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Sensor value */
 .sensor-value {
   font-size: 1.8rem;
   font-weight: 700;
@@ -83,7 +68,6 @@ body {
   transition: color 0.5s ease;
 }
 
-/* Light intensity slider */
 .light-slider {
   width: 100%;
   margin: 5px 0;
@@ -92,7 +76,6 @@ body {
   box-sizing: border-box;
 }
 
-/* Sparkline styles */
 .sparkline {
   margin-top: 5px;
   width: 100px;
@@ -100,7 +83,6 @@ body {
   display: block;
 }
 
-/* Background colors for sensor cards */
 .bg-temp {
   background-color: #ffe6e9;
 }
@@ -123,7 +105,6 @@ body {
   border-radius: 16px;
 }
 
-/* Pulse animation */
 @keyframes pulse {
   0% {
     color: #ff4d6d;
@@ -137,4 +118,36 @@ body {
     color: #ff4d6d;
     transform: scale(1);
   }
+}
+
+.bg-curtain {
+  background-color: #f0e6ff;
+}
+
+.bg-window {
+  background-color: #e6f7ff;
+}
+
+.heading1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0 0 10px 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.heading2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #444;
+  margin: 0 0 8px 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #222;
+  margin: 10px 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
