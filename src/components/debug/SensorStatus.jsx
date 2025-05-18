@@ -7,6 +7,9 @@ import LightIntensityIcon from '../../components/icons/LightIntensityIcon';
 import RainIcon from '../../components/icons/RainIcon';
 import CurtainIcon from '../../components/icons/CurtainIcon';
 import WindowIcon from '../../components/icons/WindowIcon';
+import DummyCurtainIcon from '../../components/icons/DummyCurtainIcon';
+import DummyWindowIcon from '../../components/icons/DummyWindowIcon';
+import '../../SensorStatus.css';
 
 const SensorStatus = () => {
   const [sensorData, setSensorData] = useState({});
@@ -183,14 +186,14 @@ const SensorStatus = () => {
       {/* Curtain Status */}
       <div className="sensor-card bg-curtain">
         <div className="sensor-header">
-          <CurtainIcon className="sensor-icon" />
+          <DummyCurtainIcon className={`sensor-icon curtain-icon black-icon`} />
           <div>
             <p className="sensor-label">Curtain Status</p>
-            <p className="sensor-value">
+            <p className={`sensor-value black-text`}>
               {curtainStatus === null || curtainStatus === undefined
                 ? '--'
                 : curtainStatus === 1 || curtainStatus === 'open'
-                ? 'Terbuka'
+                ? 'Buka'
                 : curtainStatus === 0 || curtainStatus === 'closed'
                 ? 'Tertutup'
                 : curtainStatus}
@@ -202,14 +205,14 @@ const SensorStatus = () => {
       {/* Window Status */}
       <div className="sensor-card bg-window">
         <div className="sensor-header">
-          <WindowIcon className="sensor-icon" />
+          <DummyWindowIcon className={`sensor-icon window-icon black-icon`} />
           <div>
             <p className="sensor-label">Window Status</p>
-            <p className="sensor-value">
+            <p className={`sensor-value black-text`}>
               {windowStatus === null || windowStatus === undefined
                 ? '--'
                 : windowStatus === 1 || windowStatus === 'open'
-                ? 'Terbuka'
+                ? 'Buka'
                 : windowStatus === 0 || windowStatus === 'closed'
                 ? 'Tertutup'
                 : windowStatus}

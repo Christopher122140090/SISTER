@@ -1,153 +1,43 @@
-.sensor-dashboard {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  max-width: 900px;
-  width: 100%;
-  box-sizing: border-box;
-  background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  background-image: url('/logo192.png');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 120px 120px;
+.sensor-card.bg-curtain {
+  background-color: #e8f5e9; /* light green background for curtain status */
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
-.sensor-card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  box-sizing: border-box;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: default;
+.sensor-card.bg-window {
+  background-color: #e3f2fd; /* light blue background for window status */
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
-.sensor-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(149, 157, 165, 0.4);
-  cursor: pointer;
+.sensor-icon.curtain-icon.open {
+  stroke: #4caf50; /* green for open */
+  color: #4caf50;
 }
 
-.sensor-header {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  box-sizing: border-box;
+.sensor-icon.curtain-icon.closed {
+  stroke: #f44336; /* red for closed */
+  color: #f44336;
 }
 
-.sensor-icon {
-  width: 40px;
-  height: 40px;
-  stroke: #ff4d6d;
-  box-sizing: border-box;
-  transition: transform 0.3s ease;
+.sensor-icon.window-icon.open {
+  stroke: #4caf50; /* green for open */
+  color: #4caf50;
 }
 
-.animate-change {
-  animation: pulse 1s ease;
+.sensor-icon.window-icon.closed {
+  stroke: #f44336; /* red for closed */
+  color: #f44336;
 }
 
-.sensor-label {
-  font-size: 0.9rem;
-  color: #999;
-  margin: 0;
-  box-sizing: border-box;
+.sensor-value.open {
+  color: #4caf50; /* green text for open */
+  font-weight: bold;
 }
 
-.sensor-value {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 0;
-  color: #222;
-  box-sizing: border-box;
-  transition: color 0.5s ease;
-}
-
-.light-slider {
-  width: 100%;
-  margin: 5px 0;
-  accent-color: #ff4d6d;
-  pointer-events: none;
-  box-sizing: border-box;
-}
-
-.sparkline {
-  margin-top: 5px;
-  width: 100px;
-  height: 20px;
-  display: block;
-}
-
-.bg-temp {
-  background-color: #ffe6e9;
-}
-
-.bg-device-temp {
-  background-color: #fff0f3;
-}
-
-.bg-humidity {
-  background-color: #e6f0ff;
-}
-
-.bg-light {
-  background-color: #fff7e6;
-}
-
-.bg-rain {
-  background-color: #e6fff2;
-  border: 2px solid;
-  border-radius: 16px;
-}
-
-@keyframes pulse {
-  0% {
-    color: #ff4d6d;
-    transform: scale(1);
-  }
-  50% {
-    color: #e04363;
-    transform: scale(1.1);
-  }
-  100% {
-    color: #ff4d6d;
-    transform: scale(1);
-  }
-}
-
-.bg-curtain {
-  background-color: #f0e6ff;
-}
-
-.bg-window {
-  background-color: #e6f7ff;
-}
-
-.heading1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #222;
-  margin: 0 0 10px 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.heading2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #444;
-  margin: 0 0 8px 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #222;
-  margin: 10px 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.sensor-value.closed {
+  color: #f44336; /* red text for closed */
+  font-weight: bold;
 }
