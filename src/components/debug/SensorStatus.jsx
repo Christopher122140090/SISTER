@@ -18,6 +18,7 @@ const SensorStatus = () => {
 
   // For animation and sparkline data history
   const [tempHistory, setTempHistory] = useState([]);
+  const [deviceTempHistory, setDeviceTempHistory] = useState([]);
   const [humidityHistory, setHumidityHistory] = useState([]);
   const [lightHistory, setLightHistory] = useState([]);
   const [rainHistory, setRainHistory] = useState([]);
@@ -61,7 +62,9 @@ const SensorStatus = () => {
           );
           const data = await response.json();
           if (data && data.current_weather && typeof data.current_weather.temperature === 'number') {
-            setDeviceTemp(Math.round(data.current_weather.temperature));
+            const temp = Math.round(data.current_weather.temperature);
+            setDeviceTemp(temp);
+            setDeviceTempHistory(prev => [...prev.slice(-19), temp]);
           } else {
             setDeviceTemp(null);
           }
@@ -122,9 +125,19 @@ const SensorStatus = () => {
         <div className="sensor-header">
           <ThermometerIcon className="sensor-icon" />
           <div>
+            <p className="sensor-label">Device Temperature</p>
             <p className={'sensor-value ' + (prevDeviceTempRef.current !== deviceTemp ? 'animate-change' : '')}>
               {deviceTemp !== null ? deviceTemp + '°C' : '--'}
             </p>
+            <div className="bar-status-container">
+              <div
+                className="bar-status-fill"
+                style={{
+                  width: deviceTemp !== null ? Math.min(Math.max(deviceTemp, 0), 50) * 2 + '%' : '0%',
+                  backgroundColor: deviceTemp !== null ? (deviceTemp > 30 ? '#ff4d6d' : '#4caf50') : '#ccc'
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
