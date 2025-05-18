@@ -1,23 +1,121 @@
-.App {
-  text-align: center;
-  font-family: Arial, sans-serif;
+/* General styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9fafb;
+  margin: 0;
   padding: 20px;
-}
-
-button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-h1, h2 {
   color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Sensor dashboard container */
+.sensor-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  max-width: 900px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Sensor card */
+.sensor-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-sizing: border-box;
+}
+
+/* Sensor header */
+.sensor-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-sizing: border-box;
+}
+
+/* Sensor icon */
+.sensor-icon {
+  width: 40px;
+  height: 40px;
+  stroke: #ff4d6d;
+  box-sizing: border-box;
+}
+
+/* Sensor label */
+.sensor-label {
+  font-size: 0.9rem;
+  color: #999;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Sensor value */
+.sensor-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  color: #222;
+  box-sizing: border-box;
+}
+
+/* Light intensity slider */
+.light-slider {
+  width: 100%;
+  margin: 5px 0;
+  accent-color: #ff4d6d;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* SmartHomeControl styles */
+.control-card {
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+  padding: 20px;
+  max-width: 400px;
+  margin-left: 20px;
+  box-sizing: border-box;
+}
+
+.control-card h2 {
+  margin-top: 0;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #222;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.button-row {
+  display: flex;
+  gap: 15px;
+  box-sizing: border-box;
+}
+
+.control-button {
+  flex: 1;
+  background-color: #ff4d6d;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.control-button:hover {
+  background-color: #e04363;
+  box-sizing: border-box;
 }
