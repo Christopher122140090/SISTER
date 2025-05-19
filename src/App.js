@@ -10,10 +10,10 @@ import WbSunnyIcon from '@mui/icons-material/WbSunny';
 const SmartHomeStatus = () => {
   const [curtainStatus, setCurtainStatus] = useState(false);
   const [windowStatus, setWindowStatus] = useState(false);
-  const [humidity, setHumidity] = useState(null);
   const [light, setLight] = useState(null);
   const [rainStatus, setRainStatus] = useState(null);
   const [temperature, setTemperature] = useState(null);
+  const [localTemperature, setLocalTemperature] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Menyimpan status autentikasi pengguna
 
@@ -51,15 +51,6 @@ const SmartHomeStatus = () => {
       }
     });
 
-    // Mengambil kelembaban dari Firebase
-    const humidityRef = ref(db, 'sensor/humidity');
-    onValue(humidityRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        setHumidity(data); // Menyimpan kelembaban ke state
-      }
-    });
-
     // Mengambil intensitas cahaya dari Firebase
     const lightRef = ref(db, 'sensor/light');
     onValue(lightRef, (snapshot) => {
@@ -87,6 +78,32 @@ const SmartHomeStatus = () => {
       }
     });
   }, [isAuthenticated]); // Efek berjalan hanya jika status autentikasi berubah
+
+  // Ambil suhu lokal device via OpenWeatherMap API
+  useEffect(() => {
+    let intervalId;
+    async function fetchLocalTemperature() {
+      try {
+        // Ganti lat, lon, dan API_KEY sesuai lokasi dan kunci API Anda
+        const lat = -6.200000; // Contoh: Jakarta
+        const lon = 106.816666;
+        const API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY';
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+        const response = await fetch(url);
+        if (response.ok) {
+          const data = await response.json();
+          setLocalTemperature(data.main.temp);
+        } else {
+          setLocalTemperature(null);
+        }
+      } catch (error) {
+        setLocalTemperature(null);
+      }
+    }
+    fetchLocalTemperature();
+    intervalId = setInterval(fetchLocalTemperature, 10000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   // Fungsi untuk mengubah status tirai dan menyimpannya di Firebase
   const toggleCurtain = () => {
@@ -132,8 +149,9 @@ const SmartHomeStatus = () => {
       >
         Status Perangkat Rumah Pintar
       </Typography>
-      <Grid container spacing={3} justifyContent="center">
-        <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 3' } }}>
+      <Grid container spacing={3} justifyContent="center" alignItems="stretch">
+        {/* Suhu dari Firebase */}
+        <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 6,
@@ -145,6 +163,8 @@ const SmartHomeStatus = () => {
             alignItems: 'center',
             transition: 'transform 0.2s, box-shadow 0.2s',
             '&:hover': { transform: 'translateY(-4px) scale(1.03)', boxShadow: 12 },
+            width: '100%',
+            maxWidth: 250,
           }}>
             <SensorsIcon color="primary" sx={{ fontSize: 48, mb: 1 }} />
             <Typography variant="h6" fontWeight={600} sx={{ fontFamily: 'Poppins, Roboto, Arial, sans-serif' }}>Suhu</Typography>
@@ -153,7 +173,8 @@ const SmartHomeStatus = () => {
             </Typography>
           </Card>
         </Grid>
-        <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 3' } }}>
+        {/* Suhu dari Device Lokal */}
+        <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 6,
@@ -165,15 +186,17 @@ const SmartHomeStatus = () => {
             alignItems: 'center',
             transition: 'transform 0.2s, box-shadow 0.2s',
             '&:hover': { transform: 'translateY(-4px) scale(1.03)', boxShadow: 12 },
+            width: '100%',
+            maxWidth: 250,
           }}>
-            <SensorsIcon color="info" sx={{ fontSize: 48, mb: 1 }} />
-            <Typography variant="h6" fontWeight={600} sx={{ fontFamily: 'Poppins, Roboto, Arial, sans-serif' }}>Kelembaban</Typography>
-            <Typography variant="h4" color="info.main" fontWeight={700}>
-              {humidity !== null ? `${humidity}%` : '-'}
+            <SensorsIcon color="secondary" sx={{ fontSize: 48, mb: 1 }} />
+            <Typography variant="h6" fontWeight={600} sx={{ fontFamily: 'Poppins, Roboto, Arial, sans-serif' }}>Suhu Local</Typography>
+            <Typography variant="h4" color="secondary" fontWeight={700}>
+              {localTemperature !== null ? `${localTemperature}°C` : '-'}
             </Typography>
           </Card>
         </Grid>
-        <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 3' } }}>
+        <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 6,
@@ -185,6 +208,8 @@ const SmartHomeStatus = () => {
             alignItems: 'center',
             transition: 'transform 0.2s, box-shadow 0.2s',
             '&:hover': { transform: 'translateY(-4px) scale(1.03)', boxShadow: 12 },
+            width: '100%',
+            maxWidth: 250,
           }}>
             <WbSunnyIcon color="warning" sx={{ fontSize: 48, mb: 1 }} />
             <Typography variant="h6" fontWeight={600} sx={{ fontFamily: 'Poppins, Roboto, Arial, sans-serif' }}>Cahaya</Typography>
@@ -193,7 +218,7 @@ const SmartHomeStatus = () => {
             </Typography>
           </Card>
         </Grid>
-        <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 3' } }}>
+        <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 6,
@@ -205,6 +230,8 @@ const SmartHomeStatus = () => {
             alignItems: 'center',
             transition: 'transform 0.2s, box-shadow 0.2s',
             '&:hover': { transform: 'translateY(-4px) scale(1.03)', boxShadow: 12 },
+            width: '100%',
+            maxWidth: 250,
           }}>
             <SensorsIcon color="success" sx={{ fontSize: 48, mb: 1 }} />
             <Typography variant="h6" fontWeight={600} sx={{ fontFamily: 'Poppins, Roboto, Arial, sans-serif' }}>Status Hujan</Typography>
@@ -214,8 +241,8 @@ const SmartHomeStatus = () => {
           </Card>
         </Grid>
       </Grid>
-      <Grid container spacing={3} justifyContent="center" sx={{ mt: 2 }}>
-        <Grid item xs={12} md={6}>
+      <Grid container spacing={3} justifyContent="center" alignItems="stretch" sx={{ mt: 2 }}>
+        <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 8,
@@ -228,6 +255,8 @@ const SmartHomeStatus = () => {
             mb: 2,
             transition: 'transform 0.2s, box-shadow 0.2s',
             '&:hover': { transform: 'translateY(-2px) scale(1.01)', boxShadow: 12 },
+            width: '100%',
+            maxWidth: 350,
           }}>
             <Box display="flex" alignItems="center">
               <SettingsRemoteIcon color="primary" sx={{ fontSize: 38, mr: 2 }} />
@@ -241,7 +270,7 @@ const SmartHomeStatus = () => {
             <Switch checked={curtainStatus} onChange={toggleCurtain} color="primary" />
           </Card>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 8,
@@ -254,6 +283,8 @@ const SmartHomeStatus = () => {
             mb: 2,
             transition: 'transform 0.2s, box-shadow 0.2s',
             '&:hover': { transform: 'translateY(-2px) scale(1.01)', boxShadow: 12 },
+            width: '100%',
+            maxWidth: 350,
           }}>
             <Box display="flex" alignItems="center">
               <SettingsRemoteIcon color="secondary" sx={{ fontSize: 38, mr: 2 }} />
