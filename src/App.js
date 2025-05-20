@@ -16,6 +16,7 @@ const SmartHomeStatus = () => {
   const [localTemperature, setLocalTemperature] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Menyimpan status autentikasi pengguna
+  const [mode, setMode] = useState(true); // true: auto, false: manual
 
   // Menggunakan useEffect untuk mendengarkan perubahan status autentikasi
   useEffect(() => {
@@ -77,31 +78,52 @@ const SmartHomeStatus = () => {
         setTemperature(data); // Menyimpan suhu ke state
       }
     });
+
+    // Listen mode from Firebase
+    const modeRef = ref(db, 'sensor/mode');
+    onValue(modeRef, (snapshot) => {
+      const data = snapshot.val();
+      if (typeof data === 'boolean') setMode(data);
+    });
   }, [isAuthenticated]); // Efek berjalan hanya jika status autentikasi berubah
 
-  // Ambil suhu lokal device via OpenWeatherMap API
+  // Ambil suhu lokal device via Meteo API dengan lokasi device
   useEffect(() => {
     let intervalId;
-    async function fetchLocalTemperature() {
-      try {
-        // Ganti lat, lon, dan API_KEY sesuai lokasi dan kunci API Anda
-        const lat = -6.200000; // Contoh: Jakarta
-        const lon = 106.816666;
-        const API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY';
-        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
-        const response = await fetch(url);
-        if (response.ok) {
-          const data = await response.json();
-          setLocalTemperature(data.main.temp);
-        } else {
-          setLocalTemperature(null);
-        }
-      } catch (error) {
-        setLocalTemperature(null);
+    function fetchLocalTemperatureByLocation(lat, lon) {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+      fetch(url)
+        .then(response => response.ok ? response.json() : Promise.reject())
+        .then(data => {
+          if (data.current_weather && typeof data.current_weather.temperature === 'number') {
+            setLocalTemperature(data.current_weather.temperature);
+          } else {
+            setLocalTemperature(null);
+          }
+        })
+        .catch(() => setLocalTemperature(null));
+    }
+    function getLocationAndFetch() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            fetchLocalTemperatureByLocation(lat, lon);
+          },
+          () => {
+            // Jika gagal, fallback ke Jakarta
+            fetchLocalTemperatureByLocation(-6.200000, 106.816666);
+          },
+          { timeout: 5000 }
+        );
+      } else {
+        // Jika tidak support, fallback ke Jakarta
+        fetchLocalTemperatureByLocation(-6.200000, 106.816666);
       }
     }
-    fetchLocalTemperature();
-    intervalId = setInterval(fetchLocalTemperature, 10000);
+    getLocationAndFetch();
+    intervalId = setInterval(getLocationAndFetch, 10000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -121,6 +143,15 @@ const SmartHomeStatus = () => {
     const windowRef = ref(db, 'sensor/window_status');
     set(windowRef, newWindowStatus); // Mengupdate status jendela di Firebase
     setOpenSnackbar(true); // Menampilkan Snackbar
+  };
+
+  // Fungsi untuk toggle mode
+  const toggleMode = () => {
+    const newMode = !mode;
+    setMode(newMode);
+    const modeRef = ref(db, 'sensor/mode');
+    set(modeRef, newMode);
+    setOpenSnackbar(true);
   };
 
   // Fungsi untuk menutup Snackbar
@@ -149,9 +180,25 @@ const SmartHomeStatus = () => {
       >
         Status Perangkat Rumah Pintar
       </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 3 }}>
+        <Card sx={{ px: 4, py: 2, borderRadius: 4, boxShadow: 4, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'rgba(255,255,255,0.97)' }}>
+          <Typography variant="h6" fontWeight={600} sx={{ fontFamily: 'Poppins, Roboto, Arial, sans-serif', mr: 2 }}>
+            Mode:
+          </Typography>
+          <Switch
+            checked={mode}
+            onChange={toggleMode}
+            color="primary"
+            inputProps={{ 'aria-label': 'toggle mode' }}
+          />
+          <Typography variant="body1" fontWeight={700} color={mode ? 'success.main' : 'warning.main'} sx={{ fontFamily: 'Poppins, Roboto, Arial, sans-serif' }}>
+            {mode ? 'Auto (IOT)' : 'Manual (User)'}
+          </Typography>
+        </Card>
+      </Box>
       <Grid container spacing={3} justifyContent="center" alignItems="stretch">
         {/* Suhu dari Firebase */}
-        <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 3' }, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 6,
@@ -174,7 +221,7 @@ const SmartHomeStatus = () => {
           </Card>
         </Grid>
         {/* Suhu dari Device Lokal */}
-        <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 3' }, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 6,
@@ -196,7 +243,7 @@ const SmartHomeStatus = () => {
             </Typography>
           </Card>
         </Grid>
-        <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 3' }, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 6,
@@ -218,7 +265,7 @@ const SmartHomeStatus = () => {
             </Typography>
           </Card>
         </Grid>
-        <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 3' }, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 6,
@@ -242,7 +289,7 @@ const SmartHomeStatus = () => {
         </Grid>
       </Grid>
       <Grid container spacing={3} justifyContent="center" alignItems="stretch" sx={{ mt: 2 }}>
-        <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 6' }, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 8,
@@ -267,10 +314,10 @@ const SmartHomeStatus = () => {
                 </Typography>
               </Box>
             </Box>
-            <Switch checked={curtainStatus} onChange={toggleCurtain} color="primary" />
+            <Switch checked={curtainStatus} onChange={toggleCurtain} color="primary" disabled={mode} />
           </Card>
         </Grid>
-        <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 6' }, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card sx={{
             borderRadius: 4,
             boxShadow: 8,
@@ -295,7 +342,7 @@ const SmartHomeStatus = () => {
                 </Typography>
               </Box>
             </Box>
-            <Switch checked={windowStatus} onChange={toggleWindow} color="secondary" />
+            <Switch checked={windowStatus} onChange={toggleWindow} color="secondary" disabled={mode} />
           </Card>
         </Grid>
       </Grid>
