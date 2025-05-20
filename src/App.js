@@ -243,7 +243,7 @@ const SmartHomeStatus = () => {
             <WbSunnyIcon color="warning" sx={{ fontSize: 48, mb: 1 }} />
             <Typography variant="h6" fontWeight={600} sx={{ fontFamily: 'Poppins, Roboto, Arial, sans-serif' }}>Cahaya</Typography>
             <Typography variant="h4" color="warning.main" fontWeight={700}>
-              {light !== null ? `${light} lux` : '-'}
+              {light !== null ? `${Number(light).toFixed(2)} lux` : '-'}
             </Typography>
           </Card>
         </Grid>
