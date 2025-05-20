@@ -32,60 +32,60 @@ const SmartHomeStatus = () => {
 
   // Mengambil data dari Firebase jika pengguna terautentikasi
   useEffect(() => {
-    if (!isAuthenticated) return; // Jangan lanjutkan jika pengguna tidak terautentikasi
+    if (!isAuthenticated) return;
 
-    // Mengambil status tirai dari Firebase
-    const curtainRef = ref(db, 'sensor/curtain_status');
-    onValue(curtainRef, (snapshot) => {
+    // Listener status tirai dan jendela, menyesuaikan mode
+    let curtainRef, windowRef;
+    if (!mode) {
+      // Mode manual: listen ke manual/curtain_manual dan manual/window_manual
+      curtainRef = ref(db, 'manual/curtain_manual');
+      windowRef = ref(db, 'manual/window_manual');
+    } else {
+      // Mode auto: listen ke sensor/curtain_status dan sensor/window_status
+      curtainRef = ref(db, 'sensor/curtain_status');
+      windowRef = ref(db, 'sensor/window_status');
+    }
+    const curtainUnsub = onValue(curtainRef, (snapshot) => {
       const data = snapshot.val();
-      if (data !== null) {
-        setCurtainStatus(data); // Menyimpan status tirai ke state
-      }
+      if (data !== null) setCurtainStatus(data);
+    });
+    const windowUnsub = onValue(windowRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data !== null) setWindowStatus(data);
     });
 
-    // Mengambil status jendela dari Firebase
-    const windowRef = ref(db, 'sensor/window_status');
-    onValue(windowRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data !== null) {
-        setWindowStatus(data); // Menyimpan status jendela ke state
-      }
-    });
-
-    // Mengambil intensitas cahaya dari Firebase
+    // Listener lain tetap
     const lightRef = ref(db, 'sensor/light');
-    onValue(lightRef, (snapshot) => {
+    const lightUnsub = onValue(lightRef, (snapshot) => {
       const data = snapshot.val();
-      if (data !== null) {
-        setLight(data); // Menyimpan cahaya ke state
-      }
+      if (data !== null) setLight(data);
     });
-
-    // Mengambil status hujan dari Firebase
     const rainRef = ref(db, 'sensor/rain_digital');
-    onValue(rainRef, (snapshot) => {
+    const rainUnsub = onValue(rainRef, (snapshot) => {
       const data = snapshot.val();
-      if (data !== null) {
-        setRainStatus(data === 1 ? 'Hujan' : 'Tidak Hujan'); // Menyimpan status hujan ke state
-      }
+      if (data !== null) setRainStatus(data === 1 ? 'Hujan' : 'Tidak Hujan');
     });
-
-    // Mengambil suhu dari Firebase
     const temperatureRef = ref(db, 'sensor/temperature');
-    onValue(temperatureRef, (snapshot) => {
+    const tempUnsub = onValue(temperatureRef, (snapshot) => {
       const data = snapshot.val();
-      if (data !== null) {
-        setTemperature(data); // Menyimpan suhu ke state
-      }
+      if (data !== null) setTemperature(data);
     });
-
-    // Listen mode from Firebase
-    const modeRef = ref(db, 'sensor/mode');
-    onValue(modeRef, (snapshot) => {
+    const modeRef = ref(db, 'mode');
+    const modeUnsub = onValue(modeRef, (snapshot) => {
       const data = snapshot.val();
       if (typeof data === 'boolean') setMode(data);
     });
-  }, [isAuthenticated]); // Efek berjalan hanya jika status autentikasi berubah
+
+    // Bersihkan listener saat unmount/berubah mode
+    return () => {
+      curtainUnsub();
+      windowUnsub();
+      lightUnsub();
+      rainUnsub();
+      tempUnsub();
+      modeUnsub();
+    };
+  }, [isAuthenticated, mode]);
 
   // Ambil suhu lokal device via Meteo API dengan lokasi device
   useEffect(() => {
@@ -127,29 +127,11 @@ const SmartHomeStatus = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Fungsi untuk mengubah status tirai dan menyimpannya di Firebase
-  const toggleCurtain = () => {
-    const newCurtainStatus = !curtainStatus;
-    setCurtainStatus(newCurtainStatus); // Mengupdate state tirai
-    const curtainRef = ref(db, 'sensor/curtain_status');
-    set(curtainRef, newCurtainStatus); // Mengupdate status tirai di Firebase
-    setOpenSnackbar(true); // Menampilkan Snackbar
-  };
-
-  // Fungsi untuk mengubah status jendela dan menyimpannya di Firebase
-  const toggleWindow = () => {
-    const newWindowStatus = !windowStatus;
-    setWindowStatus(newWindowStatus); // Mengupdate state jendela
-    const windowRef = ref(db, 'sensor/window_status');
-    set(windowRef, newWindowStatus); // Mengupdate status jendela di Firebase
-    setOpenSnackbar(true); // Menampilkan Snackbar
-  };
-
-  // Fungsi untuk toggle mode
+  // Fungsi untuk toggle mode ke /mode
   const toggleMode = () => {
     const newMode = !mode;
     setMode(newMode);
-    const modeRef = ref(db, 'sensor/mode');
+    const modeRef = ref(db, 'mode');
     set(modeRef, newMode);
     setOpenSnackbar(true);
   };
@@ -310,11 +292,20 @@ const SmartHomeStatus = () => {
               <Box>
                 <Typography variant="h6" fontWeight={600} sx={{ fontFamily: 'Poppins, Roboto, Arial, sans-serif' }}>Tirai</Typography>
                 <Typography variant="body1" color={curtainStatus ? 'success.main' : 'text.secondary'} fontWeight={600}>
-                  {curtainStatus ? 'Tertutup' : 'Terbuka'}
+                  {curtainStatus ? 'Terbuka' : 'Tertutup'}
                 </Typography>
               </Box>
             </Box>
-            <Switch checked={curtainStatus} onChange={toggleCurtain} color="primary" disabled={mode} />
+            <Switch checked={curtainStatus}
+              onChange={() => {
+                if (!isAuthenticated || mode) return;
+                const curtainManualRef = ref(db, 'manual/curtain_manual');
+                set(curtainManualRef, !curtainStatus);
+                setOpenSnackbar(true);
+              }}
+              color="primary"
+              disabled={mode}
+            />
           </Card>
         </Grid>
         <Grid sx={{ gridColumn: { xs: '1 / -1', md: 'span 6' }, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -338,11 +329,20 @@ const SmartHomeStatus = () => {
               <Box>
                 <Typography variant="h6" fontWeight={600} sx={{ fontFamily: 'Poppins, Roboto, Arial, sans-serif' }}>Jendela</Typography>
                 <Typography variant="body1" color={windowStatus ? 'success.main' : 'text.secondary'} fontWeight={600}>
-                  {windowStatus ? 'Tertutup' : 'Terbuka'}
+                  {windowStatus ? 'Terbuka' : 'Tertutup'}
                 </Typography>
               </Box>
             </Box>
-            <Switch checked={windowStatus} onChange={toggleWindow} color="secondary" disabled={mode} />
+            <Switch checked={windowStatus}
+              onChange={() => {
+                if (!isAuthenticated || mode) return;
+                const windowManualRef = ref(db, 'manual/window_manual');
+                set(windowManualRef, !windowStatus);
+                setOpenSnackbar(true);
+              }}
+              color="secondary"
+              disabled={mode}
+            />
           </Card>
         </Grid>
       </Grid>
